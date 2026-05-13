@@ -37,4 +37,3 @@ Desktop.ini
 .env.*.local
 *.duckdb
 *.duckdb.wal
-client/package.json
