@@ -6,7 +6,11 @@ import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
 import ImageLayer from 'ol/layer/Image';
 import ImageWMS from 'ol/source/ImageWMS';
+import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
+import GeoJSON from 'ol/format/GeoJSON';
 import { fromLonLat } from 'ol/proj';
+import { stylefunction } from 'ol-mapbox-style';
 
 const GEOSERVER_WMS = 'http://localhost:8080/geoserver/gis/wms';
 const MAP_CENTER: [number, number] = [48.3595, 53.1184];
@@ -22,12 +26,27 @@ const wmsLayer = (layerName: string) =>
     }),
   });
 
+const overtureLayer = new VectorLayer({
+  source: new VectorSource({
+    url: 'overture.geojson',
+    format: new GeoJSON(),
+  }),
+});
+
+fetch('overture-style.json')
+  .then((r) => r.json())
+  .then((style) => {
+    stylefunction(overtureLayer, style, 'overture');
+    overtureLayer.changed();
+  });
+
 new Map({
   target: 'map',
   layers: [
     new TileLayer({ source: new OSM() }),
     wmsLayer('gis:buildings'),
     wmsLayer('gis:roads'),
+    overtureLayer,
   ],
   view: new View({
     center: fromLonLat(MAP_CENTER),
